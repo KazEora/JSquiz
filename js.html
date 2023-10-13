@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Identification Quiz</title>
+  <link rel="stylesheet" type="text/css" href="quiz.css">
+</head>
+<body>
+  <h1>Identification Quiz</h1>
+  <p id="question">Question</p>
+  <img id="image" src="images/question.jpg" alt="">
+  <input type="text" id="answer" placeholder="Your Answer">
+  <button id="submit">Submit</button>
+  <p id="result"></p>
+  <p id="timer">Time left: <span id="time">30</span> seconds</p>
+
+  <script>
+    const questions = [
+        {
+        question: "What do you call a drowning fish?",
+        answer: "Don't know how to swim",
+        },
+        {
+        question: "Anong masarap na Lechon?",
+        answer: "Libre",
+        },
+        {
+        question: "How to greet a fish?",
+        answer: "Sap!!! sap!!!",
+        },
+        {
+        question: "Anong sabi ni True kay False?",
+        answer: "Stop Boolean me!!!",
+        },
+        {
+        question: "Hep Hep?",
+        answer: "Hooray",
+        },
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let timeLeft = 30; // seconds
+    let timerInterval;
+
+    const questionElement = document.getElementById("question");
+    const imageElement = document.getElementById("image");
+    const answerInput = document.getElementById("answer");
+    const submitButton = document.getElementById("submit");
+    const resultElement = document.getElementById("result");
+    const timeElement = document.getElementById("time");
+
+    function displayQuestion() {
+      if (currentQuestion < questions.length) {
+        const currentQuestionData = questions[currentQuestion];
+        questionElement.textContent = currentQuestionData.question;
+        imageElement.src = currentQuestionData.imageSrc;
+        answerInput.value = "";
+        resultElement.textContent = "";
+        startTimer();
+      } else {
+        showResult();
+      }
+    }
+
+    function checkAnswer() {
+      clearInterval(timerInterval);
+      const currentQuestionData = questions[currentQuestion];
+      const userAnswer = answerInput.value.trim().toLowerCase();
+      const correctAnswer = currentQuestionData.answer.toLowerCase();
+
+      if (userAnswer === correctAnswer) {
+        score++;
+        resultElement.textContent = "Correct!";
+      } else {
+        resultElement.textContent = "Incorrect. The correct answer is: " + currentQuestionData.answer;
+      }
+
+      currentQuestion++;
+      displayQuestion();
+    }
+
+    function showResult() {
+      questionElement.textContent = "Quiz Completed!";
+      imageElement.style.display = "none";
+      answerInput.style.display = "none";
+      submitButton.style.display = "none";
+      resultElement.textContent = `Your score: ${score}/${questions.length}`;
+      timeElement.style.display = "none";
+    }
+
+    function startTimer() {
+      timeLeft = 30;
+      timeElement.style.display = "block";
+
+      timerInterval = setInterval(function () {
+        timeElement.textContent = `Time left: ${timeLeft} seconds`;
+        if (timeLeft === 0) {
+          clearInterval(timerInterval);
+          currentQuestion++;
+          displayQuestion();
+        }
+        timeLeft--;
+      }, 1000);
+    }
+
+    submitButton.addEventListener("click", checkAnswer);
+    displayQuestion();
+  </script>
+</body>
+</html>

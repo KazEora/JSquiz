@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS QUIZ GAME</title>
+    <link rel="stylesheet" type="text/css" href="quiz.css">
+</head>
+<body>
+        <h1>Quiz Game</h1>
+        <p>Select a Quiz type:</p>
+        <select id="questionType">
+          <option value="multiple-choice">Multiple Choice</option>
+          <option value="true-false">True or False</option>
+          <option value="identification">Identification</option>
+        </select>
+        <button id="start">Start</button>
+      
+        <div id="quiz" style="display: none;">
+          <p id="question"></p>
+          <div id="options"></div>
+          <input type="text" id="answer" placeholder="Your Answer" style="display: none;">
+          <button id="submit"></button>
+          <p id="result"></p>
+          <p id="timer">Time left: <span id="time">30</span> seconds</p>
+          <button id="next">Next</button>
+        </div>
+      
+        <script>
+          const questions = {
+            "multiple-choice": [
+              {
+                question: "Anong tawag sa kalbong nagshashampoo parin?",
+                options: ["Baliw", "Never Give Up", "May Kuto", "Lahat ng Nabanggit"],
+                answer: "Lahat ng Nabanggit",
+              },
+              {
+                question: "May Forever ba?",
+                options: ["Meron", "Wala", "Tanong mo si Sir", "Ata"],
+                answer: "Tanong mo si Sir",
+              },
+              {
+                question: "Anong Isda ang masarap hampasin ng tsinelas?",
+                options: ["Lapu-lapu", "IFISH", "Bangus", "Tilapia"],
+                answer: "IFISH",
+              },
+              {
+                question: "Anong Isda ang pwedeng panulat?",
+                options: ["LaFISH", "Tuna", "Bangus", "Tilapia"],
+                answer: "LaFISH",
+              },
+              {
+                question: "Anong Isda ang hindi makapal?",
+                options: ["Lapu-lapu", "ManiFISH", "Bangus", "Tilapia"],
+                answer: "ManiFISH",
+              },
+            ],
+            "true-false": [
+              {
+                question: "Mahirap manuyo ng babae pag sila may kasalanan.",
+                answer: "True",
+              },
+              {
+                question: "\"Love\" starts with 'U'.",
+                answer: "False",
+              },
+              {
+                question: "5+5 is = 10.",
+                answer: "True",
+              },
+              {
+                question: "5+3 is = 15.",
+                answer: "False",
+              },
+              {
+                question: "Baby is a new born child, not me.",
+                answer: "True",
+              },
+            ],
+            "identification": [
+              {
+                question: "What do you call a drowning fish?",
+                answer: "Don't know how to swim",
+              },
+              {
+                question: "Anong masarap na Lechon?",
+                answer: "Libre",
+              },
+              {
+                question: "How to greet a fish?",
+                answer: "Sap!!! sap!!!",
+              },
+              {
+                question: "Anong sabi ni True kay False?",
+                answer: "Stop Boolean me!!!",
+              },
+              {
+                question: "Hep Hep?",
+                answer: "Hooray",
+              },
+
+
+            ],
+          };
+      
+          let currentQuestion = 0;
+          let currentType;
+          let score = 0;
+          let timeLeft = 30; // seconds
+          let timerInterval;
+      
+          const questionTypeSelect = document.getElementById("questionType");
+          const startButton = document.getElementById("start");
+          const quizContainer = document.getElementById("quiz");
+          const questionElement = document.getElementById("question");
+          const optionsElement = document.getElementById("options");
+          const answerInput = document.getElementById("answer");
+          const submitButton = document.getElementById("submit");
+          const resultElement = document.getElementById("result");
+          const timeElement = document.getElementById("time");
+          const nextButton = document.getElementById("next");
+      
+          startButton.addEventListener("click", startQuiz);
+      
+          function startQuiz() {
+            currentType = questionTypeSelect.value;
+            startButton.style.display = "none";
+            questionTypeSelect.style.display = "none";
+            quizContainer.style.display = "block";
+            currentQuestion = 0;
+            score = 0;
+            displayQuestion();
+          }
+      
+          function displayQuestion() {
+            if (currentQuestion < questions[currentType].length) {
+              const currentQuestionData = questions[currentType][currentQuestion];
+              questionElement.textContent = currentQuestionData.question;
+      
+              if (currentType === "multiple-choice") {
+                optionsElement.innerHTML = "";
+                currentQuestionData.options.forEach((option) => {
+                  const button = document.createElement("button");
+                  button.textContent = option;
+                  button.addEventListener("click", () => checkAnswer(option));
+                  optionsElement.appendChild(button);
+                });
+              } else if (currentType === "true-false") {
+                optionsElement.innerHTML = `
+                  <button id="trueBtn">True</button>
+                  <button id="falseBtn">False</button>
+                `;
+                document.getElementById("trueBtn").addEventListener("click", () => checkAnswer("True"));
+                document.getElementById("falseBtn").addEventListener("click", () => checkAnswer("False"));
+              } else if (currentType === "identification") {
+                optionsElement.innerHTML = "";
+                answerInput.style.display = "block";
+                submitButton.style.display = "block";
+              }
+      
+              startTimer();
+            } else {
+              showResult();
+            }
+          }
+      
+          function checkAnswer(userAnswer) {
+            clearInterval(timerInterval);
+            const currentQuestionData = questions[currentType][currentQuestion];
+            const correctAnswer = currentQuestionData.answer;
+      
+            if (userAnswer === correctAnswer) {
+              score++;
+              resultElement.textContent = "Correct!";
+            } else {
+              resultElement.textContent = `Incorrect. The correct answer is: ${correctAnswer}`;
+            }
+      
+            currentQuestion++;
+            answerInput.value = "";
+            answerInput.style.display = "none";
+            submitButton.style.display = "none";
+            nextButton.style.display = "block";
+          }
+      
+          function showResult() {
+            questionElement.textContent = "Quiz Completed!";
+            optionsElement.innerHTML = "";
+            nextButton.style.display = "none";
+            resultElement.textContent = `Your score: ${score}/${questions[currentType].length}`;
+            timeElement.style.display = "none";
+          }
+      
+          function startTimer() {
+            timeLeft = 30;
+            timeElement.style.display = "block";
+      
+            timerInterval = setInterval(function () {
+              timeElement.textContent = `Time left: ${timeLeft} seconds`;
+              if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                currentQuestion++;
+                displayQuestion();
+              }
+              timeLeft--;
+            }, 1000);
+          }
+      
+          nextButton.addEventListener("click", () => {
+            nextButton.style.display = "none";
+            displayQuestion();
+          });
+        </script> 
+</body>
+</html>
